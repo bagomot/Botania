@@ -77,7 +77,7 @@ public class SubTileRannuncarpus extends SubTileFunctional {
 			List<EntityItem> items = supertile.getWorld().getEntitiesWithinAABB(EntityItem.class, new AxisAlignedBB(supertile.getPos().add(-RANGE, -RANGE_Y, -RANGE), supertile.getPos().add(RANGE + 1, RANGE_Y + 1, RANGE + 1)));
 			int slowdown = getSlowdownFactor();
 			for(EntityItem item : items) {
-				if(item.getAge() < 60 + slowdown || item.isDead || item.getItem().isEmpty())
+				if(item.age < 60 + slowdown || item.isDead || item.getItem().isEmpty())
 					continue;
 
 				ItemStack stack = item.getItem();
@@ -118,30 +118,35 @@ public class SubTileRannuncarpus extends SubTileFunctional {
 							stateToPlace = Blocks.REDSTONE_WIRE.getDefaultState();
 
 						if(stateToPlace != null) {
-							if(stateToPlace.getBlock().canPlaceBlockAt(supertile.getWorld(), coords)  && !this.fake.cantPlace(coords, stateToPlace)) {
-								supertile.getWorld().setBlockState(coords, stateToPlace, 1 | 2);
-								if(ConfigHandler.blockBreakParticles)
-									supertile.getWorld().playEvent(2001, coords, Block.getStateId(stateToPlace));
-								validPositions.remove(coords);
-								ItemBlock.setTileEntityNBT(supertile.getWorld(), null, coords, stack);
 
-								TileEntity tile = supertile.getWorld().getTileEntity(coords);
-								if(tile != null && tile instanceof ISubTileContainer) {
-									ISubTileContainer container = (ISubTileContainer) tile;
-									String subtileName = ItemBlockSpecialFlower.getType(stack);
-									container.setSubTile(subtileName);
-									SubTileEntity subtile = container.getSubTile();
-									subtile.onBlockPlacedBy(supertile.getWorld(), coords, supertile.getWorld().getBlockState(coords), null, stack);
+							if(stateToPlace.getBlock().canPlaceBlockAt(supertile.getWorld(), coords)) {
+
+								// TODO gamerforEA add condition
+								if(!this.fake.cantPlace(coords, stateToPlace)) {
+									supertile.getWorld().setBlockState(coords, stateToPlace, 1 | 2);
+									if(ConfigHandler.blockBreakParticles)
+										supertile.getWorld().playEvent(2001, coords, Block.getStateId(stateToPlace));
+									validPositions.remove(coords);
+									ItemBlock.setTileEntityNBT(supertile.getWorld(), null, coords, stack);
+
+									TileEntity tile = supertile.getWorld().getTileEntity(coords);
+									if(tile != null && tile instanceof ISubTileContainer) {
+										ISubTileContainer container = (ISubTileContainer) tile;
+										String subtileName = ItemBlockSpecialFlower.getType(stack);
+										container.setSubTile(subtileName);
+										SubTileEntity subtile = container.getSubTile();
+										subtile.onBlockPlacedBy(supertile.getWorld(), coords, supertile.getWorld().getBlockState(coords), null, stack);
+									}
+
+									if(stackItem instanceof IFlowerPlaceable)
+										((IFlowerPlaceable) stackItem).onBlockPlacedByFlower(stack, this, coords);
+
+									stack.shrink(1);
+
+									if(mana > 1)
+										mana--;
+									return;
 								}
-
-								if(stackItem instanceof IFlowerPlaceable)
-									((IFlowerPlaceable) stackItem).onBlockPlacedByFlower(stack, this, coords);
-
-								stack.shrink(1);
-
-								if(mana > 1)
-									mana--;
-								return;
 							}
 						}
 					}
