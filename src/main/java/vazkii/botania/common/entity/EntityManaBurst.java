@@ -21,8 +21,8 @@ import java.util.UUID;
 
 import javax.annotation.Nonnull;
 
-import elucent.albedo.lighting.ILightProvider;
-import elucent.albedo.lighting.Light;
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.BlockLeaves;
@@ -38,14 +38,12 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import vazkii.botania.api.BotaniaAPI;
@@ -61,6 +59,7 @@ import vazkii.botania.api.mana.IManaTrigger;
 import vazkii.botania.api.mana.IPingable;
 import vazkii.botania.api.mana.IThrottledPacket;
 import vazkii.botania.common.Botania;
+import vazkii.botania.common.block.tile.TileMod;
 import vazkii.botania.common.core.handler.ConfigHandler;
 import vazkii.botania.common.core.helper.Vector3;
 import vazkii.botania.common.item.equipment.bauble.ItemTinyPlanet;
@@ -103,6 +102,17 @@ public class EntityManaBurst extends EntityThrowable implements IManaBurst {
 	boolean scanBeam = false;
 	public final List<PositionProperties> propsList = new ArrayList<>();
 
+	// TODO gamerforEA code start
+	private final FakePlayerContainer fakeContainer = ModUtils.NEXUS_FACTORY.wrapFake(this);
+
+	@Override
+	@Nonnull
+	public final FakePlayerContainer getFakePlayerContainer()
+	{
+		return this.fakeContainer;
+	}
+	// TODO gamerforEA code end
+
 	public EntityManaBurst(World world) {
 		super(world);
 		setSize(0F, 0F);
@@ -138,6 +148,11 @@ public class EntityManaBurst extends EntityThrowable implements IManaBurst {
 		double mz = -(MathHelper.cos(rotationYaw / 180.0F * (float) Math.PI) * MathHelper.cos(rotationPitch / 180.0F * (float) Math.PI) * f) / 2D;
 		double my = MathHelper.sin(rotationPitch / 180.0F * (float) Math.PI) * f / 2D;
 		setMotion(mx, my, mz);
+
+		// TODO gamerforEA code start
+		if (spreader instanceof TileMod)
+			this.fakeContainer.setParent(((TileMod) spreader).fake);
+		// TODO gamerforEA code end
 	}
 
 	public EntityManaBurst(EntityPlayer player, EnumHand hand) {
@@ -156,6 +171,10 @@ public class EntityManaBurst extends EntityThrowable implements IManaBurst {
 		double mz = -(MathHelper.cos(rotationYaw / 180.0F * (float) Math.PI) * MathHelper.cos(rotationPitch / 180.0F * (float) Math.PI) * f) / 2D;
 		double my = MathHelper.sin(rotationPitch / 180.0F * (float) Math.PI) * f / 2D;
 		setMotion(mx, my, mz);
+
+		// TODO gamerforEA code start
+		this.fakeContainer.setRealPlayer(player);
+		// TODO gamerforEA code end
 	}
 
 	// Copy of EntityThrowable.onUpdate. Relevant edits indicated.
@@ -416,6 +435,10 @@ public class EntityManaBurst extends EntityThrowable implements IManaBurst {
 			par1nbtTagCompound.setLong(TAG_SHOOTER_UUID_MOST, identity.getMostSignificantBits());
 			par1nbtTagCompound.setLong(TAG_SHOOTER_UUID_LEAST, identity.getLeastSignificantBits());
 		}
+
+		// TODO gamerforEA code start
+		this.fakeContainer.writeToNBT(par1nbtTagCompound);
+		// TODO gamerforEA code end
 	}
 
 	@Override
@@ -455,6 +478,10 @@ public class EntityManaBurst extends EntityThrowable implements IManaBurst {
 			if(identity == null || most != identity.getMostSignificantBits() || least != identity.getLeastSignificantBits())
 				shooterIdentity = new UUID(most, least);
 		}
+
+		// TODO gamerforEA code start
+		this.fakeContainer.readFromNBT(par1nbtTagCompound);
+		// TODO gamerforEA code end
 	}
 
 	public void particles() {

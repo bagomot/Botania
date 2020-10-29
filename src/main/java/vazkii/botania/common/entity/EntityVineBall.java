@@ -10,6 +10,8 @@
  */
 package vazkii.botania.common.entity;
 
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockVine;
@@ -41,6 +43,10 @@ public class EntityVineBall extends EntityThrowable {
 	private static final Map<EnumFacing, PropertyBool> propMap = ImmutableMap.of(EnumFacing.NORTH, BlockVine.NORTH, EnumFacing.SOUTH, BlockVine.SOUTH,
 			EnumFacing.WEST, BlockVine.WEST, EnumFacing.EAST, BlockVine.EAST);
 
+	// TODO gamerforEA code start
+	public final FakePlayerContainer fake = ModUtils.NEXUS_FACTORY.wrapFake(this);
+	// TODO gamerforEA code end
+
 	public EntityVineBall(World world) {
 		super(world);
 	}
@@ -48,6 +54,10 @@ public class EntityVineBall extends EntityThrowable {
 	public EntityVineBall(EntityLivingBase thrower, boolean gravity) {
 		super(thrower.world, thrower);
 		dataManager.set(GRAVITY, gravity ? 0.03F : 0F);
+
+		// TODO gamerforEA code start
+		this.fake.setRealPlayer(thrower);
+		// TODO gamerforEA code end
 	}
 
 	@Override
@@ -83,6 +93,11 @@ public class EntityVineBall extends EntityThrowable {
 							
 							if(first && !((BlockSolidVines)ModBlocks.solidVines).canAttachTo(world, pos, dir)) break;
 							first = false;
+
+							// TODO gamerforEA code start
+							if (this.fake.cantPlace(pos, stateSet))
+								break;
+							// TODO gamerforEA code end
 							
 							world.setBlockState(pos, stateSet, 1 | 2);
 							world.playEvent(2001, pos, Block.getStateId(stateSet));

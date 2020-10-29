@@ -10,6 +10,8 @@
  */
 package vazkii.botania.common.block.tile;
 
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -22,6 +24,10 @@ import javax.annotation.Nonnull;
 
 public class TileMod extends TileEntity {
 
+	// TODO gamerforEA code start
+	public final FakePlayerContainer fake = ModUtils.NEXUS_FACTORY.wrapFake(this);
+	// TODO gamerforEA code end
+
 	@Override
 	public boolean shouldRefresh(World world, BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState) {
 		return oldState.getBlock() != newState.getBlock();
@@ -32,6 +38,11 @@ public class TileMod extends TileEntity {
 	public NBTTagCompound writeToNBT(NBTTagCompound par1nbtTagCompound) {
 		NBTTagCompound ret = super.writeToNBT(par1nbtTagCompound);
 		writePacketNBT(ret);
+
+		// TODO gamerforEA code start
+		this.fake.writeToNBT(par1nbtTagCompound);
+		// TODO gamerforEA code end
+
 		return ret;
 	}
 
@@ -45,6 +56,10 @@ public class TileMod extends TileEntity {
 	public void readFromNBT(NBTTagCompound par1nbtTagCompound) {
 		super.readFromNBT(par1nbtTagCompound);
 		readPacketNBT(par1nbtTagCompound);
+
+		// TODO gamerforEA code start
+		this.fake.readFromNBT(par1nbtTagCompound);
+		// TODO gamerforEA code end
 	}
 
 	public void writePacketNBT(NBTTagCompound cmp) {}

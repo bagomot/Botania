@@ -3,6 +3,9 @@ package vazkii.botania.common.entity;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
+
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -42,6 +45,10 @@ public abstract class EntityThrowableCopy extends Entity implements IProjectile
 	public Entity ignoreEntity;
 	private int ignoreTime;
 
+	// TODO gamerforEA code start
+	public final FakePlayerContainer fake = ModUtils.NEXUS_FACTORY.wrapFake(this);
+	// TODO gamerforEA code end
+
 	public EntityThrowableCopy(World worldIn)
 	{
 		super(worldIn);
@@ -61,6 +68,10 @@ public abstract class EntityThrowableCopy extends Entity implements IProjectile
 	{
 		this(worldIn, throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.10000000149011612D, throwerIn.posZ);
 		this.thrower = throwerIn;
+
+		// TODO gamerforEA code start
+		this.fake.setRealPlayer(this.thrower);
+		// TODO gamerforEA code end
 	}
 
 	protected void entityInit()
@@ -359,6 +370,10 @@ public abstract class EntityThrowableCopy extends Entity implements IProjectile
 		}
 
 		compound.setString("ownerName", this.throwerName == null ? "" : this.throwerName);
+
+		// TODO gamerforEA code start
+		this.fake.writeToNBT(compound);
+		// TODO gamerforEA code end
 	}
 
 	/**
@@ -390,6 +405,10 @@ public abstract class EntityThrowableCopy extends Entity implements IProjectile
 		}
 
 		this.thrower = this.getThrower();
+
+		// TODO gamerforEA code start
+		this.fake.readFromNBT(compound);
+		// TODO gamerforEA code end
 	}
 
 	@Nullable

@@ -10,6 +10,7 @@
  */
 package vazkii.botania.common.item.rod;
 
+import com.gamerforea.eventhelper.util.EventUtils;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFlower;
@@ -146,8 +147,24 @@ public class ItemTerraformRod extends ItemMod implements IManaUsingItem, IBlockP
 
 		if(world.isRemote || ManaItemHandler.requestManaExactForTool(par1ItemStack, player, cost, true)) {
 			if(!world.isRemote)
-				for(CoordsWithBlock block : blocks)
-					world.setBlockState(block, block.block.getDefaultState());
+				for(CoordsWithBlock block : blocks) {
+
+					// TODO gamerforEA code start
+					if (block.block == Blocks.AIR) {
+						if (world.getBlockState(block).getBlock() != Blocks.AIR && EventUtils.cantBreak(player, block))
+							continue;
+					}
+					// TODO gamerforEA code end
+
+					IBlockState state = block.block.getDefaultState();
+
+					// TODO gamerforEA code start
+					if (block.block != Blocks.AIR && EventUtils.cantPlace(player, block, state))
+						continue;
+					// TODO gamerforEA code end
+
+					world.setBlockState(block, state);
+				}
 
 			if(!blocks.isEmpty()) {
 				for(int i = 0; i < 10; i++)

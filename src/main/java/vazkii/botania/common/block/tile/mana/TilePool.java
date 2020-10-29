@@ -10,6 +10,9 @@
  */
 package vazkii.botania.common.block.tile.mana;
 
+import com.gamerforea.botania.EventConfig;
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.botania.util.LazyInitializer;
 import com.google.common.base.Predicates;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -60,8 +63,6 @@ import vazkii.botania.common.core.handler.ModSounds;
 import vazkii.botania.common.core.helper.Vector3;
 import vazkii.botania.common.item.ItemManaTablet;
 import vazkii.botania.common.item.ModItems;
-import vazkii.botania.common.network.PacketBotaniaEffect;
-import vazkii.botania.common.network.PacketHandler;
 
 import javax.annotation.Nonnull;
 import java.awt.Color;
@@ -174,13 +175,23 @@ public class TilePool extends TileMod implements IManaPool, IKeyLocked, ISparkAt
 		if(world.isRemote || item.isDead || item.getItem().isEmpty())
 			return false;
 
+		// TODO gamerforEA code start
+		LazyInitializer<Boolean> cantInteract = new LazyInitializer<>(() -> EventConfig.protectDropManaPool && !ModUtils.canThrowerInteract(item, this.pos));
+		// TODO gamerforEA code end
+
 		ItemStack stack = item.getItem();
 
 		if(stack.getItem() instanceof IManaDissolvable) {
+
+			// TODO gamerforEA code start
+			if (cantInteract.get())
+				return false;
+			// TODO gamerforEA code end
+
 			((IManaDissolvable) stack.getItem()).onDissolveTick(this, stack, item);
 		}
 
-		if(item.age > 100 && item.age < 130)
+		if(item.getAge() > 100 && item.getAge() < 130)
 			return false;
 
 		RecipeManaInfusion recipe = getMatchingRecipe(stack, world.getBlockState(pos.down()));
@@ -188,6 +199,12 @@ public class TilePool extends TileMod implements IManaPool, IKeyLocked, ISparkAt
 		if(recipe != null) {
 			int mana = recipe.getManaToConsume();
 			if(getCurrentMana() >= mana) {
+
+				// TODO gamerforEA code start
+				if (cantInteract.get())
+					return false;
+				// TODO gamerforEA code end
+
 				recieveMana(-mana);
 
 				stack.shrink(1);
@@ -295,6 +312,12 @@ public class TilePool extends TileMod implements IManaPool, IKeyLocked, ISparkAt
 
 					if(outputting) {
 						if(canSpare) {
+
+							// TODO gamerforEA code start
+							if (EventConfig.protectDropManaPool && !ModUtils.canThrowerInteract(item, this.pos))
+								continue;
+							// TODO gamerforEA code end
+
 							if(getCurrentMana() > 0 && mana.getMana(stack) < mana.getMaxMana(stack))
 								didSomething = true;
 
@@ -304,6 +327,12 @@ public class TilePool extends TileMod implements IManaPool, IKeyLocked, ISparkAt
 						}
 					} else {
 						if(canAccept) {
+
+							// TODO gamerforEA code start
+							if (EventConfig.protectDropManaPool && !ModUtils.canThrowerInteract(item, this.pos))
+								continue;
+							// TODO gamerforEA code end
+
 							if(mana.getMana(stack) > 0 && !isFull())
 								didSomething = true;
 
@@ -395,7 +424,7 @@ public class TilePool extends TileMod implements IManaPool, IKeyLocked, ISparkAt
 	@SideOnly(Side.CLIENT)
 	public void renderHUD(Minecraft mc, ScaledResolution res) {
 		ItemStack pool = new ItemStack(ModBlocks.pool, 1, world.getBlockState(getPos()).getValue(BotaniaStateProps.POOL_VARIANT).ordinal());
-		String name = I18n.format(pool.getTranslationKey().replaceAll("tile.", "tile." + LibResources.PREFIX_MOD) + ".name");
+		String name = I18n.format("tile." + LibResources.PREFIX_MOD + pool.getUnlocalizedName() + ".name");
 		int color = 0x4444FF;
 		HUDHandler.drawSimpleManaHUD(color, knownMana, manaCap, name, res);
 

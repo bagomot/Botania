@@ -10,6 +10,7 @@
  */
 package vazkii.botania.common.item.lens;
 
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockShulkerBox;
 import net.minecraft.block.state.IBlockState;
@@ -57,6 +58,13 @@ public class LensMine extends Lens {
 		if(!source.equals(rtr.getBlockPos()) && !(tile instanceof IManaBlock) && neededHarvestLevel <= harvestLevel && hardness != -1 && hardness < 50F && (burst.isFake() || mana >= 24)) {
 			if(!burst.hasAlreadyCollidedAt(collidePos)) {
 				if(!burst.isFake()) {
+
+					// TODO gamerforEA code start
+					FakePlayerContainer fake = burst.getFakePlayerContainer();
+					if (fake != null && fake.cantBreak(collidePos))
+						return false;
+					// TODO gamerforEA code end
+
 					NonNullList<ItemStack> items = NonNullList.create();
 					block.getDrops(items, world, collidePos, world.getBlockState(collidePos), 0);
 					float chance = net.minecraftforge.event.ForgeEventFactory.fireBlockHarvesting(items, world, collidePos, state, 0, 1.0f, false, null);

@@ -155,6 +155,11 @@ public class SubTilePureDaisy extends SubTileEntity {
 
 	@Override
 	public void readFromPacketNBT(NBTTagCompound cmp) {
+
+		// TODO gamerforEA code start
+		super.readFromPacketNBT(cmp);
+		// TODO gamerforEA code end
+
 		positionAt = cmp.getInteger(TAG_POSITION);
 
 		if(supertile.getWorld() != null && !supertile.getWorld().isRemote)
@@ -164,6 +169,11 @@ public class SubTilePureDaisy extends SubTileEntity {
 
 	@Override
 	public void writeToPacketNBT(NBTTagCompound cmp) {
+
+		// TODO gamerforEA code start
+		super.writeToPacketNBT(cmp);
+		// TODO gamerforEA code end
+
 		cmp.setInteger(TAG_POSITION, positionAt);
 		for(int i = 0; i < ticksRemaining.length; i++)
 			cmp.setInteger(TAG_TICKS_REMAINING + i, ticksRemaining[i]);

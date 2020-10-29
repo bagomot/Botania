@@ -10,12 +10,12 @@
  */
 package vazkii.botania.common.item;
 
+import com.gamerforea.eventhelper.util.EventUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
@@ -40,11 +40,7 @@ import vazkii.botania.common.lib.LibItemNames;
 import vazkii.botania.common.lib.LibMisc;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 
 public class ItemGrassHorn extends ItemMod {
 
@@ -67,9 +63,9 @@ public class ItemGrassHorn extends ItemMod {
 	}
 
 	@Nonnull
-	@Override
+
 	public String getTranslationKey(ItemStack stack) {
-		return super.getTranslationKey(stack) + stack.getItemDamage();
+		return super.getUnlocalizedName(stack) + stack.getItemDamage();
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -100,41 +96,57 @@ public class ItemGrassHorn extends ItemMod {
 	public void onUsingTick(ItemStack stack, EntityLivingBase player, int time) {
 		if(!player.world.isRemote) {
 			if(time != getMaxItemUseDuration(stack) && time % 5 == 0)
-				breakGrass(player.world, stack, stack.getItemDamage(), new BlockPos(player));
+				// TODO gamerforEA add player:EntityPlayer parameter
+				breakGrass(player instanceof EntityPlayer ? (EntityPlayer) player : null, player.world, stack, stack.getItemDamage(), new BlockPos(player));
 			player.world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_NOTE_BASS, SoundCategory.BLOCKS, 1F, 0.001F);
 		}
 	}
 
-	public static void breakGrass(World world, ItemStack stack, int stackDmg, BlockPos srcPos) {
+	// TODO gamerforEA code start
+	public static void breakGrass(World world, ItemStack stack, int stackDmg, BlockPos srcPos)
+	{
+		breakGrass(null, world, stack, stackDmg, srcPos);
+	}
+	// TODO gamerforEA code end
+
+	// TODO gamerforEA add player:EntityPlayer parameter
+	public static void breakGrass(EntityPlayer player, World world, ItemStack stack, int stackDmg, BlockPos srcPos)
+	{
 		EnumHornType type = EnumHornType.getTypeForMeta(stackDmg);
+		Random rand = new Random(srcPos.hashCode());
 		int range = 12 - stackDmg * 3;
 		int rangeY = 3 + stackDmg * 4;
 		List<BlockPos> coords = new ArrayList<>();
 
-		for(BlockPos pos : BlockPos.getAllInBox(srcPos.add(-range, -rangeY, -range), srcPos.add(range, rangeY, range))) {
+		for (BlockPos pos : BlockPos.getAllInBox(srcPos.add(-range, -rangeY, -range), srcPos.add(range, rangeY, range)))
+		{
 			Block block = world.getBlockState(pos).getBlock();
-			if(block instanceof IHornHarvestable
-					? ((IHornHarvestable) block).canHornHarvest(world, pos, stack, type)
-							: stackDmg == 0 && block instanceof BlockBush && !(block instanceof ISpecialFlower)
-							|| stackDmg == 1 && block.isLeaves(world.getBlockState(pos), world, pos)
-							|| stackDmg == 2 && block == Blocks.SNOW_LAYER)
+			if (block instanceof IHornHarvestable ? ((IHornHarvestable) block).canHornHarvest(world, pos, stack, type) : stackDmg == 0 && block instanceof BlockBush && !(block instanceof ISpecialFlower) || stackDmg == 1 && block.isLeaves(world.getBlockState(pos), world, pos) || stackDmg == 2 && block == Blocks.SNOW_LAYER)
 				coords.add(pos);
 		}
 
-		Collections.shuffle(coords, world.rand);
+		Collections.shuffle(coords, rand);
 
 		int count = Math.min(coords.size(), 32 + stackDmg * 16);
-		for(int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++)
+		{
 			BlockPos currCoords = coords.get(i);
+
+			// TODO gamerforEA code start
+			if (player != null && EventUtils.cantBreak(player, currCoords))
+				continue;
+			// TODO gamerforEA code end
+
 			IBlockState state = world.getBlockState(currCoords);
 			Block block = state.getBlock();
 
-			if(block instanceof IHornHarvestable && ((IHornHarvestable) block).hasSpecialHornHarvest(world, currCoords, stack, type))
+			if (block instanceof IHornHarvestable && ((IHornHarvestable) block).hasSpecialHornHarvest(world, currCoords, stack, type))
 				((IHornHarvestable) block).harvestByHorn(world, currCoords, stack, type);
-			else {
+			else
+			{
 				block.dropBlockAsItem(world, currCoords, state, 0);
 				world.setBlockToAir(currCoords);
-				if(ConfigHandler.blockBreakParticles)
+				if (ConfigHandler.blockBreakParticles)
 					world.playEvent(2001, currCoords, Block.getStateId(state));
 			}
 		}

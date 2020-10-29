@@ -10,12 +10,12 @@
  */
 package vazkii.botania.common.item.rod;
 
+import com.gamerforea.eventhelper.util.EventUtils;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -25,7 +25,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
@@ -224,6 +223,12 @@ public class ItemExchangeRod extends ItemMod implements IManaUsingItem, IWirefra
 			Block blockAt = stateAt.getBlock();
 			if(!blockAt.isAir(world.getBlockState(pos), world, pos) && stateAt.getPlayerRelativeBlockHardness(player, world, pos) > 0 && stateAt != state) {
 				if(!world.isRemote) {
+
+					// TODO gamerforEA code start
+					if (EventUtils.cantReplace(player, pos, state))
+						return false;
+					// TODO gamerforEA code end
+
 					world.destroyBlock(pos, !player.capabilities.isCreativeMode);
 					if(!player.capabilities.isCreativeMode) {
 						removeFromInventory(player, stack, state.getBlock(), state.getBlock().getMetaFromState(state), true);

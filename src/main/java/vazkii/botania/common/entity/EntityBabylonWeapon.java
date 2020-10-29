@@ -10,6 +10,7 @@
  */
 package vazkii.botania.common.entity;
 
+import com.gamerforea.eventhelper.EventHelperMod;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -21,9 +22,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Optional;
 import vazkii.botania.common.Botania;
 import vazkii.botania.common.core.handler.ModSounds;
 import vazkii.botania.common.core.helper.PlayerHelper;
@@ -33,9 +32,6 @@ import vazkii.botania.common.item.equipment.tool.ToolCommons;
 import vazkii.botania.common.item.relic.ItemKingKey;
 
 import javax.annotation.Nonnull;
-
-import elucent.albedo.lighting.ILightProvider;
-import elucent.albedo.lighting.Light;
 
 import java.util.List;
 
@@ -147,6 +143,12 @@ public class EntityBabylonWeapon extends EntityThrowableCopy {
 						continue;
 
 					if(living.hurtTime == 0) {
+
+						// TODO gamerforEA code start
+						if (EventHelperMod.paranoidProtection && this.fake.cantAttack(living))
+							return;
+						// TODO gamerforEA code end
+
 						if(player != null)
 							living.attackEntityFrom(DamageSource.causePlayerDamage(player), 20);
 						else living.attackEntityFrom(DamageSource.GENERIC, 20);
@@ -175,6 +177,12 @@ public class EntityBabylonWeapon extends EntityThrowableCopy {
 		EntityLivingBase thrower = getThrower();
 		if(pos.entityHit == null || pos.entityHit != thrower) {
 			world.createExplosion(this, posX, posY, posZ, 3F, false);
+
+			// TODO gamerforEA code replace, old code:
+			// this.world.createExplosion(this, this.posX, this.posY, this.posZ, 3F, false);
+			this.fake.createExplosion(this, this.posX, this.posY, this.posZ, 3F, false);
+			// TODO gamerforEA code end
+
 			setDead();
 		}
 	}

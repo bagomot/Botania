@@ -10,9 +10,15 @@
  */
 package vazkii.botania.api.internal;
 
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
@@ -69,5 +75,19 @@ public interface IManaBurst {
 	UUID getShooterUUID();
 
 	void ping();
+
+	// TODO gamerforEA code start
+	@Nullable
+	default FakePlayerContainer getFakePlayerContainer()
+	{
+		if (this instanceof Entity)
+			return ModUtils.NEXUS_FACTORY.wrapFake((Entity) this);
+		if (this instanceof TileEntity)
+			return ModUtils.NEXUS_FACTORY.wrapFake((TileEntity) this);
+		if (this instanceof World)
+			return ModUtils.NEXUS_FACTORY.wrapFake((World) this);
+		return null;
+	}
+	// TODO gamerforEA code end
 
 }

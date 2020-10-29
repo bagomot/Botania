@@ -10,6 +10,8 @@
  */
 package vazkii.botania.common.entity;
 
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.BlockLeaves;
@@ -44,6 +46,10 @@ public class EntityThornChakram extends EntityThrowable {
 	private boolean bounced = false;
 	private ItemStack stack = ItemStack.EMPTY;
 
+	// TODO gamerforEA code start
+	public final FakePlayerContainer fake = ModUtils.NEXUS_FACTORY.wrapFake(this);
+	// TODO gamerforEA code end
+
 	public EntityThornChakram(World world) {
 		super(world);
 	}
@@ -51,6 +57,10 @@ public class EntityThornChakram extends EntityThrowable {
 	public EntityThornChakram(World world, EntityLivingBase e, ItemStack stack) {
 		super(world, e);
 		this.stack = stack.copy();
+
+		// TODO gamerforEA code start
+		this.fake.setRealPlayer(e);
+		// TODO gamerforEA code end
 	}
 
 	@Override
@@ -142,7 +152,7 @@ public class EntityThornChakram extends EntityThrowable {
 			if(bounces < MAX_BOUNCES) {
 				Vector3 currentMovementVec = new Vector3(motionX, motionY, motionZ);
 				EnumFacing dir = pos.sideHit;
-				Vector3 normalVector = new Vector3(dir.getXOffset(), dir.getYOffset(), dir.getZOffset()).normalize();
+				Vector3 normalVector = new Vector3(dir.getFrontOffsetX(), dir.getFrontOffsetY(), dir.getFrontOffsetZ()).normalize();
 				Vector3 movementVec = normalVector.multiply(-2 * currentMovementVec.dotProduct(normalVector)).add(currentMovementVec);
 
 				motionX = movementVec.x;
@@ -158,6 +168,12 @@ public class EntityThornChakram extends EntityThrowable {
 		}
 		case ENTITY: {
 			if(!world.isRemote && pos.entityHit != null && pos.entityHit instanceof EntityLivingBase && pos.entityHit != getThrower()) {
+
+				// TODO gamerforEA code start
+				if (this.fake.cantAttack(pos.entityHit))
+					break;
+				// TODO gamerforEA code end
+
 				EntityLivingBase thrower = getThrower();
 				pos.entityHit.attackEntityFrom(thrower != null ? thrower instanceof EntityPlayer ? DamageSource.causeThrownDamage(this, thrower) : DamageSource.causeMobDamage(thrower) : DamageSource.GENERIC, 12);
 				if(isFire())
@@ -212,6 +228,10 @@ public class EntityThornChakram extends EntityThrowable {
 			compound.setTag("fly_stack", stack.writeToNBT(new NBTTagCompound()));
 		}
 		compound.setBoolean("flare", isFire());
+
+		// TODO gamerforEA code start
+		this.fake.writeToNBT(compound);
+		// TODO gamerforEA code end
 	}
 
 	@Override
@@ -221,6 +241,10 @@ public class EntityThornChakram extends EntityThrowable {
 			stack = new ItemStack(compound.getCompoundTag("fly_stack"));
 		}
 		setFire(compound.getBoolean("flare"));
+
+		// TODO gamerforEA code start
+		this.fake.readFromNBT(compound);
+		// TODO gamerforEA code end
 	}
 
 }

@@ -52,6 +52,11 @@ public class ItemFireRod extends ItemMod implements IManaUsingItem, IAvatarWield
 		if(!world.isRemote && ManaItemHandler.requestManaExactForTool(stack, player, COST, false)) {
 			EntityFlameRing entity = new EntityFlameRing(player.world);
 			entity.setPosition(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
+
+			// TODO gamerforEA code start
+			entity.fake.setRealPlayer(player);
+			// TODO gamerforEA code end
+
 			player.world.spawnEntity(entity);
 
 			player.getCooldownTracker().setCooldown(this, IManaProficiencyArmor.Helper.hasProficiency(player, stack) ? COOLDOWN / 2 : COOLDOWN);
@@ -80,6 +85,11 @@ public class ItemFireRod extends ItemMod implements IManaUsingItem, IAvatarWield
 		if(!world.isRemote && tile.getCurrentMana() >= COST && tile.getElapsedFunctionalTicks() % 300 == 0 && tile.isEnabled()) {
 			EntityFlameRing entity = new EntityFlameRing(world);
 			entity.setPosition(te.getPos().getX() + 0.5, te.getPos().getY(), te.getPos().getZ() + 0.5);
+
+			// TODO gamerforEA code start
+			entity.fake.setRealPlayer(entity);
+			// TODO gamerforEA code end
+
 			world.spawnEntity(entity);
 			tile.recieveMana(-COST);
 		}

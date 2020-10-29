@@ -10,6 +10,7 @@
  */
 package vazkii.botania.common.block;
 
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -40,6 +41,13 @@ public class BlockManaBomb extends BlockMod implements IManaTrigger, ILexiconabl
 			world.setBlockToAir(pos);
 			EntityManaStorm storm = new EntityManaStorm(world);
 			storm.setPosition(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+
+			// TODO gamerforEA code start
+			FakePlayerContainer fake = burst.getFakePlayerContainer();
+			if (fake != null)
+				storm.fake.setParent(fake);
+			// TODO gamerforEA code end
+
 			world.spawnEntity(storm);
 		}
 	}

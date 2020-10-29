@@ -10,6 +10,8 @@
  */
 package vazkii.botania.common.entity;
 
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -32,6 +34,10 @@ public class EntityManaStorm extends Entity {
 	public int liveTime;
 	public int burstsFired;
 	public int deathTime;
+
+	// TODO gamerforEA code start
+	public final FakePlayerContainer fake = ModUtils.NEXUS_FACTORY.wrapFake(this);
+	// TODO gamerforEA code end
 
 	public EntityManaStorm(World world) {
 		super(world);
@@ -56,7 +62,10 @@ public class EntityManaStorm extends Entity {
 			deathTime++;
 			if(deathTime >= DEATH_TIME) {
 				setDead();
-				world.newExplosion(this, posX, posY, posZ, 8F, true, true);
+				// TODO gamerforEA code replace, old code:
+				// this.world.newExplosion(this, this.posX, this.posY, this.posZ, 8F, true, true);
+				this.fake.newExplosion(this, this.posX, this.posY, this.posZ, 8F, true, true);
+				// TODO gamerforEA code end
 			}
 		}
 	}
@@ -78,6 +87,11 @@ public class EntityManaStorm extends Entity {
 
 		Vector3 motion = new Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize().multiply(motionModifier);
 		burst.setMotion(motion.x, motion.y, motion.z);
+
+		// TODO gamerforEA code start
+		burst.getFakePlayerContainer().setParent(this.fake);
+		// TODO gamerforEA code end
+
 		world.spawnEntity(burst);
 	}
 
@@ -86,6 +100,10 @@ public class EntityManaStorm extends Entity {
 		liveTime = cmp.getInteger(TAG_TIME);
 		burstsFired = cmp.getInteger(TAG_BURSTS_FIRED);
 		deathTime = cmp.getInteger(TAG_DEATH_TIME);
+
+		// TODO gamerforEA code start
+		this.fake.readFromNBT(cmp);
+		// TODO gamerforEA code end
 	}
 
 	@Override
@@ -93,6 +111,10 @@ public class EntityManaStorm extends Entity {
 		cmp.setInteger(TAG_TIME, liveTime);
 		cmp.setInteger(TAG_BURSTS_FIRED, burstsFired);
 		cmp.setInteger(TAG_DEATH_TIME, deathTime);
+
+		// TODO gamerforEA code start
+		this.fake.writeToNBT(cmp);
+		// TODO gamerforEA code end
 	}
 
 }

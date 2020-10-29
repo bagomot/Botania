@@ -247,6 +247,11 @@ public class SubTileGenerating extends SubTileEntity {
 
 	@Override
 	public void readFromPacketNBT(NBTTagCompound cmp) {
+
+		// TODO gamerforEA code start
+		super.readFromPacketNBT(cmp);
+		// TODO gamerforEA code end
+
 		mana = cmp.getInteger(TAG_MANA);
 		passiveDecayTicks = cmp.getInteger(TAG_PASSIVE_DECAY_TICKS);
 
@@ -259,6 +264,11 @@ public class SubTileGenerating extends SubTileEntity {
 
 	@Override
 	public void writeToPacketNBT(NBTTagCompound cmp) {
+
+		// TODO gamerforEA code start
+		super.writeToPacketNBT(cmp);
+		// TODO gamerforEA code end
+
 		cmp.setInteger(TAG_MANA, mana);
 		cmp.setInteger(TAG_TICKS_EXISTED, ticksExisted);
 		cmp.setInteger(TAG_PASSIVE_DECAY_TICKS, passiveDecayTicks);

@@ -10,6 +10,7 @@
  */
 package vazkii.botania.common.core.command;
 
+import com.gamerforea.botania.EventConfig;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -41,17 +42,35 @@ public class CommandShare extends CommandBase {
 		json = json.replaceAll("%entryname%", I18n.translateToLocal(args[0]));
 
 		ITextComponent component = ITextComponent.Serializer.jsonToComponent(json);
+
+		// TODO gamerforEA code start
+		if (component == null)
+			return;
+		// TODO gamerforEA code end
+
 		server.getPlayerList().sendMessage(component);
 	}
 
 
 	@Override
 	public int getRequiredPermissionLevel() {
+
+		// TODO gamerforEA code start
+		if (EventConfig.botaniaShareOpsOnly)
+			return 4;
+		// TODO gamerforEA code end
+
 		return 0;
 	}
 
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+
+		// TODO gamerforEA code start
+		if (EventConfig.botaniaShareOpsOnly)
+			return super.checkPermission(server, sender);
+		// TODO gamerforEA code end
+
 		return sender instanceof EntityPlayer;
 	}
 }

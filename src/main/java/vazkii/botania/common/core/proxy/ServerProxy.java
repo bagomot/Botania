@@ -10,6 +10,8 @@
  */
 package vazkii.botania.common.core.proxy;
 
+import com.gamerforea.botania.EventConfig;
+import com.gamerforea.eventhelper.config.ConfigUtils;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,7 +30,11 @@ import vazkii.botania.common.lib.LibMisc;
 public class ServerProxy implements IProxy {
 
 	@Override
-	public void preInit(FMLPreInitializationEvent event) {}
+	public void preInit(FMLPreInitializationEvent event) {
+		// TODO gamerforEA code start
+		ConfigUtils.readConfig(EventConfig.class);
+		// TODO gamerforEA code end
+	}
 
 	@Override
 	public void init(FMLInitializationEvent event) {}

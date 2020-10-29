@@ -11,6 +11,11 @@
 package vazkii.botania.common.item.equipment.bauble;
 
 import baubles.api.BaubleType;
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
+import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -19,15 +24,21 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.enchantment.EnchantmentFrostWalker;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import vazkii.botania.api.item.IBaubleRender;
 import vazkii.botania.client.core.handler.MiscellaneousIcons;
 import vazkii.botania.client.core.helper.IconHelper;
 import vazkii.botania.common.lib.LibItemNames;
+
+import static net.minecraft.enchantment.EnchantmentFrostWalker.freezeNearby;
 
 public class ItemIcePendant extends ItemBauble implements IBaubleRender {
 
@@ -46,10 +57,52 @@ public class ItemIcePendant extends ItemBauble implements IBaubleRender {
 		if(!entity.world.isRemote) {
 			boolean lastOnGround = entity.onGround;
 			entity.onGround = true;
-			EnchantmentFrostWalker.freezeNearby(entity, entity.world, new BlockPos(entity), 8);
+
+			// TODO gamerforEA code replace, old code:
+			// EnchantmentFrostWalker.freezeNearby(entity, entity.world, new BlockPos(entity), 8);
+			this.freezeNearby(entity, entity.world, new BlockPos(entity), 8);
+			// TODO gamerforEA code end
+
 			entity.onGround = lastOnGround;
 		}
 	}
+
+	// TODO gamerforEA code start
+	private static void freezeNearby(EntityLivingBase living, World worldIn, BlockPos origin, int level)
+	{
+		if (living.onGround)
+		{
+			float f = (float) Math.min(16, 2 + level);
+			BlockPos.MutableBlockPos upPos = new BlockPos.MutableBlockPos(0, 0, 0);
+			FakePlayerContainer fake = ModUtils.NEXUS_FACTORY.wrapFake(living);
+
+			for (BlockPos.MutableBlockPos pos : BlockPos.getAllInBoxMutable(origin.add((double) -f, -1.0D, (double) -f), origin.add((double) f, -1.0D, (double) f)))
+			{
+				if (pos.distanceSqToCenter(living.posX, living.posY, living.posZ) <= (double) (f * f))
+				{
+					upPos.setPos(pos.getX(), pos.getY() + 1, pos.getZ());
+					IBlockState upState = worldIn.getBlockState(upPos);
+
+					if (upState.getMaterial() == Material.AIR)
+					{
+						IBlockState state = worldIn.getBlockState(pos);
+
+						if (state.getMaterial() == Material.WATER && (state.getBlock() == Blocks.WATER || state.getBlock() == Blocks.FLOWING_WATER) && state.getValue(BlockLiquid.LEVEL) == 0 && worldIn.mayPlace(Blocks.FROSTED_ICE, pos, false, EnumFacing.DOWN, null))
+						{
+							IBlockState newState = Blocks.FROSTED_ICE.getDefaultState();
+
+							if (fake.cantReplace(pos, newState))
+								continue;
+
+							worldIn.setBlockState(pos, newState);
+							worldIn.scheduleUpdate(pos.toImmutable(), Blocks.FROSTED_ICE, MathHelper.getInt(living.getRNG(), 60, 120));
+						}
+					}
+				}
+			}
+		}
+	}
+	// TODO gamerforEA code end
 
 	@Override
 	@SideOnly(Side.CLIENT)

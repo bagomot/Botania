@@ -27,7 +27,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -41,7 +40,6 @@ import vazkii.botania.api.subtile.SubTileFunctional;
 import vazkii.botania.common.core.handler.ConfigHandler;
 import vazkii.botania.common.item.block.ItemBlockSpecialFlower;
 import vazkii.botania.common.lexicon.LexiconData;
-import vazkii.botania.common.lib.LibObfuscation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +77,7 @@ public class SubTileRannuncarpus extends SubTileFunctional {
 			List<EntityItem> items = supertile.getWorld().getEntitiesWithinAABB(EntityItem.class, new AxisAlignedBB(supertile.getPos().add(-RANGE, -RANGE_Y, -RANGE), supertile.getPos().add(RANGE + 1, RANGE_Y + 1, RANGE + 1)));
 			int slowdown = getSlowdownFactor();
 			for(EntityItem item : items) {
-				if(item.age < 60 + slowdown || item.isDead || item.getItem().isEmpty())
+				if(item.getAge() < 60 + slowdown || item.isDead || item.getItem().isEmpty())
 					continue;
 
 				ItemStack stack = item.getItem();
@@ -120,7 +118,7 @@ public class SubTileRannuncarpus extends SubTileFunctional {
 							stateToPlace = Blocks.REDSTONE_WIRE.getDefaultState();
 
 						if(stateToPlace != null) {
-							if(stateToPlace.getBlock().canPlaceBlockAt(supertile.getWorld(), coords)) {
+							if(stateToPlace.getBlock().canPlaceBlockAt(supertile.getWorld(), coords)  && !this.fake.cantPlace(coords, stateToPlace)) {
 								supertile.getWorld().setBlockState(coords, stateToPlace, 1 | 2);
 								if(ConfigHandler.blockBreakParticles)
 									supertile.getWorld().playEvent(2001, coords, Block.getStateId(stateToPlace));

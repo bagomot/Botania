@@ -10,6 +10,8 @@
  */
 package vazkii.botania.common.item;
 
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.state.IBlockState;
@@ -73,6 +75,10 @@ public class ItemLaputaShard extends ItemMod implements ILensEffect, ITinyPlanet
 	private static final int BASE_RANGE = 14;
 	private static final int BASE_OFFSET = 42;
 
+	// TODO gamerforEA code start
+	private static final ThreadLocal<FakePlayerContainer> CURRENT_FAKE_PLAYER_CONTAINER = new ThreadLocal<>();
+	// TODO gamerforEA code end
+
 	public ItemLaputaShard() {
 		super(LibItemNames.LAPUTA_SHARD);
 		setHasSubtypes(true);
@@ -99,7 +105,22 @@ public class ItemLaputaShard extends ItemMod implements ILensEffect, ITinyPlanet
 		if(!world.isRemote && pos.getY() < 160 && !world.provider.doesWaterVaporize()) {
 			world.playSound(null, pos, ModSounds.laputaStart, SoundCategory.BLOCKS, 1.0F + world.rand.nextFloat(), world.rand.nextFloat() * 0.7F + 1.3F);
 			ItemStack stack = player.getHeldItem(hand);
-			spawnBurstFirst(world, pos, stack);
+
+			// TODO gamerforEA code replace, old code:
+			// this.spawnBurstFirst(world, pos, stack);
+			FakePlayerContainer prevFake = CURRENT_FAKE_PLAYER_CONTAINER.get();
+			CURRENT_FAKE_PLAYER_CONTAINER.set(ModUtils.NEXUS_FACTORY.wrapFake(player));
+			try
+			{
+				this.spawnBurstFirst(world, pos, stack);
+			}
+			finally
+			{
+				CURRENT_FAKE_PLAYER_CONTAINER.set(prevFake);
+			}
+			// TODO gamerforEA code end
+
+
 			UseItemSuccessTrigger.INSTANCE.trigger((EntityPlayerMP) player, stack, (WorldServer) world, pos.getX(), pos.getY(), pos.getZ());
 			stack.shrink(1);
 		}
@@ -143,6 +164,13 @@ public class ItemLaputaShard extends ItemMod implements ILensEffect, ITinyPlanet
 							IBlockState state = world.getBlockState(pos_);
 							Block block = state.getBlock();
 							if(!block.isAir(state, world, pos_) && !block.isReplaceable(world, pos_) && !(block instanceof BlockFalling) && (!(block instanceof ILaputaImmobile) || ((ILaputaImmobile) block).canMove(world, pos_)) && state.getBlockHardness(world, pos_) != -1) {
+
+								// TODO gamerforEA code start
+								FakePlayerContainer fake = CURRENT_FAKE_PLAYER_CONTAINER.get();
+								if (fake != null && fake.cantBreak(pos_))
+									continue;
+								// TODO gamerforEA code end
+
 								TileEntity tile = world.getTileEntity(pos_);
 
 								if(tile != null) {
@@ -205,6 +233,13 @@ public class ItemLaputaShard extends ItemMod implements ILensEffect, ITinyPlanet
 		burst.setMotion(0, 0.5, 0);
 
 		burst.setSourceLens(stack);
+
+		// TODO gamerforEA code start
+		FakePlayerContainer fake = CURRENT_FAKE_PLAYER_CONTAINER.get();
+		if (fake != null)
+			burst.getFakePlayerContainer().setParent(fake);
+		// TODO gamerforEA code end
+
 		return burst;
 	}
 
@@ -236,8 +271,23 @@ public class ItemLaputaShard extends ItemMod implements ILensEffect, ITinyPlanet
 				int y = ItemNBTHelper.getInt(lens, TAG_Y, -1);
 				int z = ItemNBTHelper.getInt(lens, TAG_Z, 0);
 
-				if(y != -1)
-					spawnBurst(entity.world, new BlockPos(x, y, z), lens);
+				if(y != -1) {
+
+					// TODO gamerforEA code replace, old code:
+					// this.spawnBurst(entity.world, new BlockPos(x, y, z), lens);
+					FakePlayerContainer prevFake = CURRENT_FAKE_PLAYER_CONTAINER.get();
+					CURRENT_FAKE_PLAYER_CONTAINER.set(burst.getFakePlayerContainer());
+					try
+					{
+						this.spawnBurst(entity.world, new BlockPos(x, y, z), lens);
+					}
+					finally
+					{
+						CURRENT_FAKE_PLAYER_CONTAINER.set(prevFake);
+					}
+					// TODO gamerforEA code end
+
+				}
 			} else if(burst.getTicksExisted() == placeTicks) {
 				int x = net.minecraft.util.math.MathHelper.floor(entity.posX);
 				int y = ItemNBTHelper.getInt(lens, TAG_Y_START, -1) + targetDistance;
@@ -255,6 +305,17 @@ public class ItemLaputaShard extends ItemMod implements ILensEffect, ITinyPlanet
 						}
 					}
 					int meta = ItemNBTHelper.getInt(lens, TAG_META, 0);
+
+					IBlockState state = block.getStateFromMeta(meta);
+
+					// TODO gamerforEA code start
+					FakePlayerContainer fake = burst.getFakePlayerContainer();
+					if (fake != null && fake.cantPlace(pos, state))
+					{
+						entity.setDead();
+						return;
+					}
+					// TODO gamerforEA code end
 
 					TileEntity tile = null;
 					NBTTagCompound tilecmp = ItemNBTHelper.getCompound(lens, TAG_TILE, false);

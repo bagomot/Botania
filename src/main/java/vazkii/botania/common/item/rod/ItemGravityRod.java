@@ -10,6 +10,7 @@
  */
 package vazkii.botania.common.item.rod;
 
+import com.gamerforea.eventhelper.util.EventUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -137,6 +138,13 @@ public class ItemGravityRod extends ItemMod implements IManaUsingItem {
 				if(BotaniaAPI.isEntityBlacklistedFromGravityRod(item.getClass()))
 					return ActionResult.newResult(EnumActionResult.FAIL, stack);
 
+				// TODO gamerforEA code start
+				if (!ManaItemHandler.requestManaExactForTool(stack, player, COST, false))
+					return ActionResult.newResult(EnumActionResult.FAIL, stack);
+				if (EventUtils.cantAttack(player, item))
+					return ActionResult.newResult(EnumActionResult.FAIL, stack);
+				// TODO gamerforEA code end
+
 				if(ManaItemHandler.requestManaExactForTool(stack, player, COST, true)) {
 					if(item instanceof EntityItem)
 						((EntityItem) item).setPickupDelay(5);
@@ -208,6 +216,15 @@ public class ItemGravityRod extends ItemMod implements IManaUsingItem {
 					item = player.world.getEntityByID(targetID);
 					ItemNBTHelper.setInt(stack, TAG_TARGET, -1);
 					ItemNBTHelper.setDouble(stack, TAG_DIST, -1);
+
+					// TODO gamerforEA code start
+					if (EventUtils.cantAttack(player, item))
+					{
+						ItemNBTHelper.setInt(stack, TAG_TICKS_COOLDOWN, 10);
+						return;
+					}
+					// TODO gamerforEA code end
+
 					Vector3 moveVector = new Vector3(player.getLookVec().normalize());
 					if(item instanceof EntityItem) {
 						((EntityItem) item).setPickupDelay(20);

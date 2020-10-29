@@ -10,6 +10,7 @@
  */
 package vazkii.botania.common.item.relic;
 
+import com.gamerforea.botania.EventConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -69,7 +70,7 @@ public class ItemRelic extends ItemMod implements IRelic {
 
 			if(stack.getItem() == ModItems.dice) {
 				addStringToTooltip("", list);
-				String name = stack.getTranslationKey() + ".poem";
+				String name = stack.getUnlocalizedName() + ".poem";
 				for(int i = 0; i < 4; i++)
 					addStringToTooltip(TextFormatting.ITALIC + I18n.format(name + i), list);
 			}
@@ -102,6 +103,11 @@ public class ItemRelic extends ItemMod implements IRelic {
 		} else if (!getSoulbindUUID(stack).equals(player.getUniqueID())) {
 			rightPlayer = false;
 		}
+
+		// TODO gamerforEA code start
+		if (EventConfig.relicNoDamage)
+			return;
+		// TODO gamerforEA code end
 
 		if(!rightPlayer && player.ticksExisted % 10 == 0 && (!(stack.getItem() instanceof ItemRelic) || ((ItemRelic) stack.getItem()).shouldDamageWrongPlayer()))
 			player.attackEntityFrom(damageSource(), 2);

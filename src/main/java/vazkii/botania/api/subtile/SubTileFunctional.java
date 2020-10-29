@@ -154,6 +154,11 @@ public class SubTileFunctional extends SubTileEntity {
 
 	@Override
 	public void readFromPacketNBT(NBTTagCompound cmp) {
+
+		// TODO gamerforEA code start
+		super.readFromPacketNBT(cmp);
+		// TODO gamerforEA code end
+
 		mana = cmp.getInteger(TAG_MANA);
 
 		int x = cmp.getInteger(TAG_POOL_X);
@@ -165,6 +170,11 @@ public class SubTileFunctional extends SubTileEntity {
 
 	@Override
 	public void writeToPacketNBT(NBTTagCompound cmp) {
+
+		// TODO gamerforEA code start
+		super.writeToPacketNBT(cmp);
+		// TODO gamerforEA code end
+
 		cmp.setInteger(TAG_MANA, mana);
 
 		if(cachedPoolCoordinates != null) {

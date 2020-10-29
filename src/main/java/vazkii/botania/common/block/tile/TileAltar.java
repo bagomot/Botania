@@ -10,6 +10,9 @@
  */
 package vazkii.botania.common.block.tile;
 
+import com.gamerforea.botania.EventConfig;
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.botania.util.LazyInitializer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -38,7 +41,6 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import scala.reflect.internal.Trees.If;
 import vazkii.botania.api.BotaniaAPI;
 import vazkii.botania.api.internal.VanillaPacketDispatcher;
 import vazkii.botania.api.item.IPetalApothecary;
@@ -51,9 +53,6 @@ import vazkii.botania.client.core.helper.RenderHelper;
 import vazkii.botania.common.Botania;
 import vazkii.botania.common.block.ModBlocks;
 import vazkii.botania.common.core.handler.ModSounds;
-import vazkii.botania.common.item.equipment.bauble.ItemBalanceCloak;
-import vazkii.botania.common.network.PacketBotaniaEffect;
-import vazkii.botania.common.network.PacketHandler;
 
 import javax.annotation.Nonnull;
 import java.awt.Color;
@@ -86,8 +85,18 @@ public class TileAltar extends TileSimpleInventory implements IPetalApothecary, 
 		if(world.isRemote || stack.isEmpty() || item.isDead)
 			return false;
 
+		// TODO gamerforEA code start
+		LazyInitializer<Boolean> cantInteract = new LazyInitializer<>(() -> EventConfig.protectDropPetalApothecary && !ModUtils.canThrowerInteract(item, this.pos));
+		// TODO gamerforEA code end
+
 		if(!isMossy && world.getBlockState(getPos()).getValue(BotaniaStateProps.ALTAR_VARIANT) == AltarVariant.DEFAULT) {
 			if(stack.getItem() == Item.getItemFromBlock(Blocks.VINE)) {
+
+				// TODO gamerforEA code start
+				if (cantInteract.get())
+					return false;
+				// TODO gamerforEA code end
+
 				isMossy = true;
 				world.updateComparatorOutputLevel(pos, world.getBlockState(pos).getBlock());
 				stack.shrink(1);
@@ -106,12 +115,24 @@ public class TileAltar extends TileSimpleInventory implements IPetalApothecary, 
 				FluidStack drainLava = fluidHandler.drain(new FluidStack(FluidRegistry.LAVA, Fluid.BUCKET_VOLUME), false);
 
 				if(drainWater != null && drainWater.getFluid() == FluidRegistry.WATER && drainWater.amount == Fluid.BUCKET_VOLUME) {
+
+					// TODO gamerforEA code start
+					if (cantInteract.get())
+						return false;
+					// TODO gamerforEA code end
+
 					setWater(true);
 					world.updateComparatorOutputLevel(pos, world.getBlockState(pos).getBlock());
 					fluidHandler.drain(new FluidStack(FluidRegistry.WATER, Fluid.BUCKET_VOLUME), true);
 					item.setItem(fluidHandler.getContainer());
 					return true;
 				} else if(drainLava != null && drainLava.getFluid() == FluidRegistry.LAVA && drainLava.amount == Fluid.BUCKET_VOLUME) {
+
+					// TODO gamerforEA code start
+					if (cantInteract.get())
+						return false;
+					// TODO gamerforEA code end
+
 					setLava(true);
 					world.updateComparatorOutputLevel(pos, world.getBlockState(pos).getBlock());
 					fluidHandler.drain(new FluidStack(FluidRegistry.LAVA, Fluid.BUCKET_VOLUME), true);
@@ -128,9 +149,15 @@ public class TileAltar extends TileSimpleInventory implements IPetalApothecary, 
 			return true;
 		}
 		
-		if(SEED_PATTERN.matcher(stack.getTranslationKey()).find()) {
+		if(SEED_PATTERN.matcher(stack.getUnlocalizedName()).find()) {
 			for(RecipePetals recipe : BotaniaAPI.petalRecipes) {
 				if(recipe.matches(itemHandler)) {
+
+					// TODO gamerforEA code start
+					if (cantInteract.get())
+						return false;
+					// TODO gamerforEA code end
+
 					saveLastRecipe();
 					
 					for(int i = 0; i < getSizeInventory(); i++)
@@ -157,6 +184,12 @@ public class TileAltar extends TileSimpleInventory implements IPetalApothecary, 
 			
 			for(int i = 0; i < getSizeInventory(); i++) {
 				if(itemHandler.getStackInSlot(i).isEmpty()) {
+
+					// TODO gamerforEA code start
+					if (cantInteract.get())
+						return false;
+					// TODO gamerforEA code end
+
 					itemHandler.setStackInSlot(i, stack.splitStack(1));
 					world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.1F, 10F);
 					return true;

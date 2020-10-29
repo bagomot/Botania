@@ -91,7 +91,19 @@ public class BlockSpreader extends BlockMod implements IWandable, IWandHUD, ILex
 	@Override
 	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase par5EntityLivingBase, ItemStack par6ItemStack) {
 		EnumFacing orientation = EnumFacing.getDirectionFromEntityLiving(pos, par5EntityLivingBase);
-		TileSpreader spreader = (TileSpreader) world.getTileEntity(pos);
+
+		// TODO gamerforEA code clear:
+		//TileSpreader spreader = (TileSpreader) world.getTileEntity(pos);
+
+		// TODO gamerforEA code start
+		TileEntity tile = world.getTileEntity(pos);
+		if (!(tile instanceof TileSpreader))
+			return;
+
+		TileSpreader spreader = (TileSpreader) tile;
+		spreader.fake.setProfile(par5EntityLivingBase);
+		// TODO gamerforEA code end
+
 		world.setBlockState(pos, getStateFromMeta(par6ItemStack.getItemDamage()), 1 | 2);
 
 		switch(orientation) {

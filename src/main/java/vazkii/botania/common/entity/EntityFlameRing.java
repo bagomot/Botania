@@ -10,6 +10,8 @@
  */
 package vazkii.botania.common.entity;
 
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.SoundEvents;
@@ -28,8 +30,13 @@ import elucent.albedo.lighting.ILightProvider;
 import elucent.albedo.lighting.Light;
 
 import java.util.List;
+import java.util.Random;
 
 public class EntityFlameRing extends Entity {
+
+	// TODO gamerforEA code start
+	public final FakePlayerContainer fake = ModUtils.NEXUS_FACTORY.wrapFake(this);
+	// TODO gamerforEA code end
 
 	public EntityFlameRing(World world) {
 		super(world);
@@ -45,30 +52,41 @@ public class EntityFlameRing extends Entity {
 		super.onEntityUpdate();
 
 		float radius = 5F;
-		float renderRadius = (float) (radius - Math.random());
+		// TODO gamerforEA code start
+		if (this.world.isRemote)
+		{
+			Random random = this.world.rand;
+			float renderRadius = radius - random.nextFloat();
 
-		for(int i = 0; i < Math.min(90, ticksExisted); i++) {
-			float a = i;
-			if(a % 2 == 0)
-				a = 45 + a;
+			for (int i = 0; i < Math.min(90, this.ticksExisted); i++)
+			{
+				if (random.nextInt(this.ticksExisted < 90 ? 8 : 20) == 0)
+				{
+					float a = i;
+					if (a % 2 == 0)
+						a = 45 + a;
 
-			if(world.rand.nextInt(ticksExisted < 90 ? 8 : 20) == 0) {
-				float rad = (float) (a * 4 * Math.PI / 180F);
-				double x = Math.cos(rad) * renderRadius;
-				double z = Math.sin(rad) * renderRadius;
+					float rad = (float) (a * 4 * Math.PI / 180F);
+					float radCos = net.minecraft.util.math.MathHelper.cos(rad);
+					float radSin = net.minecraft.util.math.MathHelper.sin(rad);
 
-				Botania.proxy.wispFX(posX + x, posY - 0.2, posZ + z, 1F, (float) Math.random() * 0.25F, (float) Math.random() * 0.25F, 0.65F + (float) Math.random() * 0.45F, (float) (Math.random() - 0.5F) * 0.15F, 0.055F + (float) Math.random() * 0.025F, (float) (Math.random() - 0.5F) * 0.15F);
+					double x = radCos * renderRadius;
+					double z = radSin * renderRadius;
 
-				float gs = (float) Math.random() * 0.15F;
-				float smokeRadius = (float) (renderRadius - Math.random() * renderRadius * 0.9);
-				x = Math.cos(rad) * smokeRadius;
-				z = Math.sin(rad) * smokeRadius;
-				Botania.proxy.wispFX(posX + x, posY - 0.2, posZ + z, gs, gs, gs, 0.65F + (float) Math.random() * 0.45F, -0.155F - (float) Math.random() * 0.025F);
+					Botania.proxy.wispFX(this.posX + x, this.posY - 0.2, this.posZ + z, 1F, random.nextFloat() * 0.25F, random.nextFloat() * 0.25F, 0.65F + random.nextFloat() * 0.45F, (random.nextFloat() - 0.5F) * 0.15F, 0.055F + random.nextFloat() * 0.025F, (random.nextFloat() - 0.5F) * 0.15F);
+
+					float gs = random.nextFloat() * 0.15F;
+					float smokeRadius = renderRadius - random.nextFloat() * renderRadius * 0.9F;
+					x = radCos * smokeRadius;
+					z = radSin * smokeRadius;
+					Botania.proxy.wispFX(this.posX + x, this.posY - 0.2, this.posZ + z, gs, gs, gs, 0.65F + random.nextFloat() * 0.45F, -0.155F - random.nextFloat() * 0.025F);
+				}
 			}
-		}
 
-		if(world.rand.nextInt(20) == 0)
-			world.playSound(posX, posY, posZ, SoundEvents.BLOCK_FIRE_AMBIENT, SoundCategory.BLOCKS, 1F, 1F, false);
+			if (random.nextInt(20) == 0)
+				this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.BLOCK_FIRE_AMBIENT, SoundCategory.BLOCKS, 1F, 1F, false);
+		}
+		// TODO gamerforEA code end
 
 		if(world.isRemote)
 			return;
@@ -89,6 +107,11 @@ public class EntityFlameRing extends Entity {
 				if(entity == null || MathHelper.pointDistancePlane(posX, posY, entity.posX, entity.posY) > radius)
 					continue;
 
+				// TODO gamerforEA code start
+				if (this.fake.cantAttack(entity))
+					continue;
+				// TODO gamerforEA code end
+
 				entity.setFire(4);
 			}
 		}
@@ -100,8 +123,16 @@ public class EntityFlameRing extends Entity {
 	}
 
 	@Override
-	protected void readEntityFromNBT(@Nonnull NBTTagCompound var1) {}
+	protected void readEntityFromNBT(@Nonnull NBTTagCompound var1) {
+		// TODO gamerforEA code start
+		this.fake.readFromNBT(var1);
+		// TODO gamerforEA code end
+	}
 
 	@Override
-	protected void writeEntityToNBT(@Nonnull NBTTagCompound var1) {}
+	protected void writeEntityToNBT(@Nonnull NBTTagCompound var1) {
+		// TODO gamerforEA code start
+		this.fake.writeToNBT(var1);
+		// TODO gamerforEA code end
+	}
 }

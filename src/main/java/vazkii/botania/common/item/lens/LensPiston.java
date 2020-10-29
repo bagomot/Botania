@@ -10,6 +10,7 @@
  */
 package vazkii.botania.common.item.lens;
 
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.projectile.EntityThrowable;
@@ -31,8 +32,14 @@ public class LensPiston extends Lens {
 			if(entity.world.isAirBlock(pos_) || entity.world.getBlockState(pos_).getBlock().isReplaceable(entity.world, pos_)) {
 				IBlockState state = entity.world.getBlockState(pos.getBlockPos());
 				TileEntity tile = entity.world.getTileEntity(pos.getBlockPos());
+				if(state.getMobilityFlag() == EnumPushReaction.NORMAL && state.getBlock() != Blocks.OBSIDIAN && state.getBlockHardness(entity.world, pos_) >= 0 && tile == null) {
 
-				if(state.getPushReaction() == EnumPushReaction.NORMAL && state.getBlock() != Blocks.OBSIDIAN && state.getBlockHardness(entity.world, pos_) >= 0 && tile == null) {
+					// TODO gamerforEA code start
+					FakePlayerContainer fake = burst.getFakePlayerContainer();
+					if (fake != null && (fake.cantBreak(pos.getBlockPos()) || fake.cantPlace(pos_, state)))
+						return false;
+					// TODO gamerforEA code end
+
 					entity.world.destroyBlock(pos.getBlockPos(), false);
 					entity.world.setBlockState(pos_, state, 1 | 2);
 				}

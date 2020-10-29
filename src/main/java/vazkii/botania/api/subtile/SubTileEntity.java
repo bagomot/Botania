@@ -10,6 +10,8 @@
  */
 package vazkii.botania.api.subtile;
 
+import com.gamerforea.botania.ModUtils;
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -31,6 +33,7 @@ import vazkii.botania.api.internal.VanillaPacketDispatcher;
 import vazkii.botania.api.lexicon.LexiconEntry;
 import vazkii.botania.api.wand.IWandBindable;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -53,6 +56,18 @@ public class SubTileEntity {
 	/** The Tag items should use to store which sub tile they are. **/
 	public static final String TAG_TYPE = "type";
 	public static final String TAG_TICKS_EXISTED = "ticksExisted";
+
+	// TODO gamerforEA code start
+	public final FakePlayerContainer fake = new FakePlayerContainer(ModUtils.NEXUS_FACTORY.getProfile())
+	{
+		@Nonnull
+		@Override
+		public World getWorld()
+		{
+			return SubTileEntity.this.getWorld();
+		}
+	};
+	// TODO gamerforEA code end
 
 	public final BlockPos getPos() {
 		return supertile.getPos();
@@ -86,14 +101,24 @@ public class SubTileEntity {
 	 * by readFromPacketNBT on the client that receives the packet.
 	 * Note: This method is also used to write to the world NBT.
 	 */
-	public void writeToPacketNBT(NBTTagCompound cmp) { }
+	public void writeToPacketNBT(NBTTagCompound cmp)
+	{
+		// TODO gamerforEA code start
+		this.fake.writeToNBT(cmp);
+		// TODO gamerforEA code end
+	}
 
 	/**
 	 * Reads data from a network packet. This data is written by
 	 * writeToPacketNBT in the server. Note: This method is also used
 	 * to read from the world NBT.
 	 */
-	public void readFromPacketNBT(NBTTagCompound cmp) { }
+	public void readFromPacketNBT(NBTTagCompound cmp)
+	{
+		// TODO gamerforEA code start
+		this.fake.readFromNBT(cmp);
+		// TODO gamerforEA code end
+	}
 
 	public void sync() {
 		VanillaPacketDispatcher.dispatchTEToNearbyPlayers(supertile);
@@ -130,7 +155,11 @@ public class SubTileEntity {
 	/**
 	 * Called when this sub tile is placed in the world (by an entity).
 	 */
-	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity, ItemStack stack) {}
+	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity, ItemStack stack) {
+		// TODO gamerforEA code start
+		this.fake.setProfile(entity);
+		// TODO gamerforEA code end
+	}
 
 	/**
 	 * Called when a player right clicks this sub tile.

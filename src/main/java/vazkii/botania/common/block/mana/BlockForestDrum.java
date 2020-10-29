@@ -10,6 +10,7 @@
  */
 package vazkii.botania.common.block.mana;
 
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockFaceShape;
@@ -117,11 +118,18 @@ public class BlockForestDrum extends BlockMod implements IManaTrigger, ILexicona
 			world.spawnParticle(EnumParticleTypes.NOTE, pos.getX() + 0.5, pos.getY() + 1.2, pos.getZ() + 0.5D, 1.0 / 24.0, 0, 0);
 			return;
 		}
+
+		// TODO gamerforEA code start
+		FakePlayerContainer fake = burst.getFakePlayerContainer();
+		// TODO gamerforEA code end
+
 		DrumVariant variant = world.getBlockState(pos).getValue(BotaniaStateProps.DRUM_VARIANT);
-		if(variant == DrumVariant.WILD)
-			ItemGrassHorn.breakGrass(world, null, 0, pos);
-		else if(variant == DrumVariant.CANOPY)
-			ItemGrassHorn.breakGrass(world, null, 1, pos);
+		if (variant == DrumVariant.WILD)
+			// TODO gamerforEA add player:EntityPlayer parameter
+			ItemGrassHorn.breakGrass(fake == null ? null : fake.getPlayer(), world, null, 0, pos);
+		else if (variant == DrumVariant.CANOPY)
+			// TODO gamerforEA add player:EntityPlayer parameter
+			ItemGrassHorn.breakGrass(fake == null ? null : fake.getPlayer(), world, null, 1, pos);
 		else {
 			int range = 10;
 			List<EntityLiving> entities = world.getEntitiesWithinAABB(EntityLiving.class, new AxisAlignedBB(pos.add(-range, -range, -range), pos.add(range + 1, range + 1, range + 1)));
@@ -155,6 +163,11 @@ public class BlockForestDrum extends BlockMod implements IManaTrigger, ILexicona
 			for(EntityLiving entity : shearables) {
 				if(sheared > 4)
 					break;
+
+				// TODO gamerforEA code start
+				if (fake != null && fake.cantAttack(entity))
+					continue;
+				// TODO gamerforEA code end
 
 				List<ItemStack> stacks = ((IShearable) entity).onSheared(stack, world, new BlockPos(entity), 0);
 				if(stacks != null)

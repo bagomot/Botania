@@ -10,7 +10,9 @@
  */
 package vazkii.botania.common.item;
 
+import com.gamerforea.botania.ModUtils;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -63,8 +65,19 @@ public class ItemBottledMana extends ItemMod {
 			break;
 		}
 		case 1 : { // Water
-			if(!living.world.isRemote && !living.world.provider.doesWaterVaporize())
-				living.world.setBlockState(new BlockPos(living), Blocks.FLOWING_WATER.getDefaultState());
+			if(!living.world.isRemote && !living.world.provider.doesWaterVaporize()) {
+
+				BlockPos pos = new BlockPos(living);
+				IBlockState state = Blocks.FLOWING_WATER.getDefaultState();
+
+				// TODO gamerforEA code start
+				if (ModUtils.NEXUS_FACTORY.wrapFake(living).cantPlace(pos, state))
+					break;
+				// TODO gamerforEA code end
+
+				living.world.setBlockState(pos, state);
+			}
+
 			break;
 		}
 		case 2 : { // Set on Fire
@@ -74,7 +87,10 @@ public class ItemBottledMana extends ItemMod {
 		}
 		case 3 : { // Mini Explosion
 			if(!living.world.isRemote)
-				living.world.createExplosion(null, living.posX, living.posY, living.posZ, 0.25F, false);
+				// TODO gamerforEA code replace, old code:
+				// living.world.createExplosion(null, living.posX, living.posY, living.posZ, 0.25F, false);
+				ModUtils.NEXUS_FACTORY.wrapFake(living).createExplosion(null, living.posX, living.posY, living.posZ, 0.25F, false);
+				// TODO gamerforEA code end
 			break;
 		}
 		case 4 : { // Mega Jump
