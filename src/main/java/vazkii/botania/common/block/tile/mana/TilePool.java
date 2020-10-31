@@ -191,7 +191,7 @@ public class TilePool extends TileMod implements IManaPool, IKeyLocked, ISparkAt
 			((IManaDissolvable) stack.getItem()).onDissolveTick(this, stack, item);
 		}
 
-		if(item.getAge() > 100 && item.getAge() < 130)
+		if(item.age > 100 && item.age < 130)
 			return false;
 
 		RecipeManaInfusion recipe = getMatchingRecipe(stack, world.getBlockState(pos.down()));
