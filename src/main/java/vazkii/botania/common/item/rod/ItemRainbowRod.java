@@ -10,6 +10,7 @@
  */
 package vazkii.botania.common.item.rod;
 
+import com.gamerforea.eventhelper.util.EventUtils;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -77,8 +78,11 @@ public class ItemRainbowRod extends ItemMod implements IManaUsingItem, IAvatarWi
             int maxlen = prof ? 160 : 100;
             int time = prof ? (int) (TIME * 1.6) : TIME;
 
+            // TODO: for fix
+            boolean flag = true;
+
             BlockPos.MutableBlockPos placePos = new BlockPos.MutableBlockPos();
-            while (count < maxlen) {
+            while (count < maxlen && flag) {
                 lastChecker.setPos(lastX, lastY, lastZ);
 
                 if (!lastChecker.equals(pos)) {
@@ -86,16 +90,19 @@ public class ItemRainbowRod extends ItemMod implements IManaUsingItem, IAvatarWi
                             || !world.isAirBlock(pos) && world.getBlockState(pos).getBlock() != place)
                         break;
 
-                    for(int i = -2; i < 1; i++)
+                    for(int i = -2; i < 1 && flag; i++)
                         for(int j = -2; j < 1; j++) {
                             placePos.setPos(pos.getX() + i, pos.getY(), pos.getZ() + j);
-                            if(world.isAirBlock(placePos)
-                                    || world.getBlockState(placePos).getBlock() == place) {
+                            if(!EventUtils.cantPlace(player, placePos, world.getBlockState(placePos)) && (world.isAirBlock(placePos)
+                                    || world.getBlockState(placePos).getBlock() == place)) {
                                 world.setBlockState(placePos, place.getDefaultState(), 2);
                                 TileBifrost tile = (TileBifrost) world.getTileEntity(placePos);
                                 if(tile != null) {
                                     tile.ticks = time;
                                 }
+                            } else { // TODO: for fix
+                                flag = false;
+                                break;
                             }
 
                         }
