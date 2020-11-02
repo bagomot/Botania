@@ -10,6 +10,7 @@
  */
 package vazkii.botania.common.item.rod;
 
+import com.gamerforea.eventhelper.util.EventUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -64,8 +65,8 @@ public class ItemSmeltRod extends ItemMod implements IManaUsingItem {
     @Nonnull
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, @Nonnull EnumHand hand) {
-        player.setActiveHand(hand);
-        return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+            player.setActiveHand(hand);
+            return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
     }
 
     @Override
@@ -84,7 +85,7 @@ public class ItemSmeltRod extends ItemMod implements IManaUsingItem {
             ItemStack blockStack = new ItemStack(state.getBlock(), 1, state.getBlock().getMetaFromState(state));
             ItemStack result = FurnaceRecipes.instance().getSmeltingResult(blockStack);
 
-            if(!result.isEmpty() && result.getItem() instanceof ItemBlock) {
+            if(!result.isEmpty() && result.getItem() instanceof ItemBlock && !EventUtils.cantPlace(p, pos.getBlockPos(), state)) {
                 boolean decremented = false;
 
                 if(playerData.containsKey(p)) {
