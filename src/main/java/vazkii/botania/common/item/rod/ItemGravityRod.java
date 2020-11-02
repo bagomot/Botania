@@ -14,6 +14,7 @@ import com.gamerforea.eventhelper.util.EventUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
@@ -134,7 +135,7 @@ public class ItemGravityRod extends ItemMod implements IManaUsingItem {
 				}
 			}
 
-			if(item != null) {
+			if(item != null && !EventUtils.cantAttack(player, item) && (item instanceof EntityItem || item instanceof EntityAnimal)) {
 				if(BotaniaAPI.isEntityBlacklistedFromGravityRod(item.getClass()))
 					return ActionResult.newResult(EnumActionResult.FAIL, stack);
 
