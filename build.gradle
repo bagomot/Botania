@@ -16,7 +16,7 @@ apply plugin: 'maven-publish'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-version = '363'
+version = '363-server'
 group = 'vazkii.botania' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'Botania+r1.10'
 
