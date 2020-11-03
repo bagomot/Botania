@@ -103,7 +103,7 @@ public class ItemTerraformRod extends ItemMod implements IManaUsingItem, IBlockP
 	}
 
 	private void terraform(ItemStack par1ItemStack, World world, EntityPlayer player) {
-		int range = IManaProficiencyArmor.Helper.hasProficiency(player, par1ItemStack) ? 22 : 16;
+		int range = IManaProficiencyArmor.Helper.hasProficiency(player, par1ItemStack) ? 3 : 1; // TODO FIX
 
 		BlockPos startCenter = new BlockPos(player).down();
 
