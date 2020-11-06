@@ -133,22 +133,21 @@ public class ItemGrassHorn extends ItemMod {
 			BlockPos currCoords = coords.get(i);
 
 			// TODO gamerforEA code start
-			if (player != null && EventUtils.cantBreak(player, currCoords))
-				continue;
-			// TODO gamerforEA code end
+			if (player != null && !EventUtils.cantBreak(player, currCoords)) {
+				IBlockState state = world.getBlockState(currCoords);
+				Block block = state.getBlock();
 
-			IBlockState state = world.getBlockState(currCoords);
-			Block block = state.getBlock();
-
-			if (block instanceof IHornHarvestable && ((IHornHarvestable) block).hasSpecialHornHarvest(world, currCoords, stack, type))
-				((IHornHarvestable) block).harvestByHorn(world, currCoords, stack, type);
-			else
-			{
-				block.dropBlockAsItem(world, currCoords, state, 0);
-				world.setBlockToAir(currCoords);
-				if (ConfigHandler.blockBreakParticles)
-					world.playEvent(2001, currCoords, Block.getStateId(state));
+				if (block instanceof IHornHarvestable && ((IHornHarvestable) block).hasSpecialHornHarvest(world, currCoords, stack, type))
+					((IHornHarvestable) block).harvestByHorn(world, currCoords, stack, type);
+				else
+				{
+					block.dropBlockAsItem(world, currCoords, state, 0);
+					world.setBlockToAir(currCoords);
+					if (ConfigHandler.blockBreakParticles)
+						world.playEvent(2001, currCoords, Block.getStateId(state));
+				}
 			}
+			// TODO gamerforEA code end
 		}
 	}
 

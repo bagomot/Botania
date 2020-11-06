@@ -124,37 +124,41 @@ public class BlockForestDrum extends BlockMod implements IManaTrigger, ILexicona
 		// TODO gamerforEA code end
 
 		DrumVariant variant = world.getBlockState(pos).getValue(BotaniaStateProps.DRUM_VARIANT);
-		if (variant == DrumVariant.WILD)
+		if (variant == DrumVariant.WILD) {
 			// TODO gamerforEA add player:EntityPlayer parameter
 			ItemGrassHorn.breakGrass(fake == null ? null : fake.getPlayer(), world, null, 0, pos);
-		else if (variant == DrumVariant.CANOPY)
+		} else if (variant == DrumVariant.CANOPY) {
 			// TODO gamerforEA add player:EntityPlayer parameter
 			ItemGrassHorn.breakGrass(fake == null ? null : fake.getPlayer(), world, null, 1, pos);
-		else {
+		} else {
 			int range = 10;
 			List<EntityLiving> entities = world.getEntitiesWithinAABB(EntityLiving.class, new AxisAlignedBB(pos.add(-range, -range, -range), pos.add(range + 1, range + 1, range + 1)));
 			List<EntityLiving> shearables = new ArrayList<>();
 			ItemStack stack = new ItemStack(this, 1, 1);
 
 			for(EntityLiving entity : entities) {
-				if(entity instanceof IShearable && ((IShearable) entity).isShearable(stack, world, new BlockPos(entity))) {
-					shearables.add(entity);
-				} else if(entity instanceof EntityCow) {
-					List<EntityItem> items = world.getEntitiesWithinAABB(EntityItem.class, new AxisAlignedBB(entity.posX, entity.posY, entity.posZ, entity.posX + entity.width, entity.posY + entity.height, entity.posZ + entity.width));
-					for(EntityItem item : items) {
-						ItemStack itemstack = item.getItem();
-						if(!itemstack.isEmpty() && itemstack.getItem() == Items.BUCKET && !world.isRemote) {
-							while(itemstack.getCount() > 0) {
-								EntityItem ent = entity.entityDropItem(new ItemStack(Items.MILK_BUCKET), 1.0F);
-								ent.motionY += world.rand.nextFloat() * 0.05F;
-								ent.motionX += (world.rand.nextFloat() - world.rand.nextFloat()) * 0.1F;
-								ent.motionZ += (world.rand.nextFloat() - world.rand.nextFloat()) * 0.1F;
-								itemstack.shrink(1);
+				// TODO gamerforEA code start
+				if (fake != null && !fake.cantAttack(entity)) {
+					if(entity instanceof IShearable && ((IShearable) entity).isShearable(stack, world, new BlockPos(entity))) {
+						shearables.add(entity);
+					} else if(entity instanceof EntityCow) {
+						List<EntityItem> items = world.getEntitiesWithinAABB(EntityItem.class, new AxisAlignedBB(entity.posX, entity.posY, entity.posZ, entity.posX + entity.width, entity.posY + entity.height, entity.posZ + entity.width));
+						for(EntityItem item : items) {
+							ItemStack itemstack = item.getItem();
+							if(!itemstack.isEmpty() && itemstack.getItem() == Items.BUCKET && !world.isRemote) {
+								while(itemstack.getCount() > 0) {
+									EntityItem ent = entity.entityDropItem(new ItemStack(Items.MILK_BUCKET), 1.0F);
+									ent.motionY += world.rand.nextFloat() * 0.05F;
+									ent.motionX += (world.rand.nextFloat() - world.rand.nextFloat()) * 0.1F;
+									ent.motionZ += (world.rand.nextFloat() - world.rand.nextFloat()) * 0.1F;
+									itemstack.shrink(1);
+								}
+								item.setDead();
 							}
-							item.setDead();
 						}
 					}
 				}
+				// TODO gamerforEA code end
 			}
 
 			Collections.shuffle(shearables);
